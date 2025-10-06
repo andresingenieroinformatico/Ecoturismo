@@ -7,6 +7,8 @@ from itsdangerous import URLSafeSerializer as Serializer
 
 app = Flask(__name__)
 
+app = Flask(__name__)
+
 
 @app.route('/')
 def pagina_principal():
