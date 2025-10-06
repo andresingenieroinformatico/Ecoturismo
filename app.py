@@ -6,6 +6,7 @@ import os
 # Configuración de Supabase
 url: str = os.environ.get("SUPABASE_URL")
 key: str = os.environ.get("SUPABASE_KEY")
+key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyaXp3cW9hc2tub2J3d21xc2d4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk3NTU3NjksImV4cCI6MjA3NTMzMTc2OX0.xihhrX_8mcyP9y34yfJGkZwBqhNNXwlwb1uEE9ANyUk"
 supabase: Client = create_client(url, key)
 
 app = Flask(__name__)
