@@ -1,20 +1,25 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash
 from flask_bcrypt import Bcrypt
 from supabase import create_client, Client
-import os
+import sys
+SUPABASE_URL = 'https://urizwqoasknobwwmqsgx.supabase.co'
+SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyaXp3cW9hc2tub2J3d21xc2d4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk3NTU3NjksImV4cCI6MjA3NTMzMTc2OX0.xihhrX_8mcyP9y34yfJGkZwBqhNNXwlwb1uEE9ANyUk'
 
-# Configuración de Supabase
-url: str = os.environ.get("SUPABASE_URL")
-key: str = os.environ.get("SUPABASE_KEY")
-supabase: Client = create_client(url, key)
+supabase: Client = None 
 
+try:
+    supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+    print("Conexión a Supabase establecida correctamente.")
+except Exception as e:
+    print(f"ERROR FATAL al inicializar Supabase. Verifique URL/Key o conexión de red: {e}", file=sys.stderr)
+    
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 app.secret_key = "advpjsh"
 
 @app.route('/')
-def index():
-    return render_template('index.html')
+def base():
+    return render_template('base.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -133,6 +138,17 @@ def index():
     }
     return render_template('index.html', usuario=usuario)
 
+@app.route('/lugares')
+def rlugares():
+    if 'email' not in session:
+        flash("Por favor, inicia sesión para continuar.", "error")
+        return redirect(url_for('login'))
+    usuario = {
+        'primer_N': session.get('primer_N', 'Usuario'),
+        'primer_A': session.get('primer_A', '')
+    }
+    return render_template('lugares.html', usuario=usuario)
+
 @app.route('/about')
 def about():
     return render_template('about.html')
@@ -142,9 +158,9 @@ def lugares():
     return render_template('lugares.html')
 
 
-@app.route('/reservas')
-def reservas():
-    return render_template('reservas.html')
+@app.route('/como_reservar')
+def como_reservar():
+    return render_template('como_reservar.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

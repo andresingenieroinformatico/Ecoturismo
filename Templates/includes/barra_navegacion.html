@@ -7,9 +7,8 @@
     <nav class="navbar">
         <ul class="navbar-menu">
             <li><a href="/" class="nav-link">Inicio</a></li>
-            <li><a href="/lugares.html" class="nav-link">Lugares</a></li>
-            <li><a href="/reservas.html" class="nav-link">Reservas</a></li>
-            <li><a href="/about.html" class="nav-link">Acerca de</a></li>
+            <li><a href="{{ url_for('como_reservar') }}" class="nav-link">Como Reservar</a></li>
+            <li><a href="{{ url_for('about') }}" class="nav-link">Acerca de</a></li>
         </ul>
         <ul class="navbar-menu-1">
             <li><a href="{{ url_for('login') }}" class="nav-link">Iniciar Sesión</a></li>
