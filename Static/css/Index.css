@@ -1,0 +1,103 @@
+
+        /* CSS BÁSICO PARA IMITAR LA APARIENCIA */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            /* Color de fondo similar al sitio de referencia */
+            background-color: #1a325b; 
+            color: #333;
+        }
+
+        header {
+            background-color: #ffffff; /* Barra de navegación clara */
+            border-bottom: 2px solid #ddd;
+        }
+
+        main {
+            padding: 20px 0;
+        }
+
+        /* Estilo para el contenedor principal de contenido */
+        .rutas-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff; /* Fondo blanco para la sección principal */
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        /* Títulos de bienvenida */
+        .rutas-container h1, .rutas-container p {
+            color: #1a325b; 
+            margin-bottom: 20px;
+        }
+
+        /* Contenedores de tarjetas de contenido */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .ruta-item {
+            background-color: #f7f7f7;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+        }
+
+        .ruta-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .ruta-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .ruta-item h2 {
+            font-size: 1.5em;
+            color: #1a325b;
+            padding: 15px 10px 5px;
+        }
+
+        .ruta-item p {
+            padding: 0 10px 15px;
+            color: #555;
+            font-size: 0.95em;
+        }
+        
+        /* Botón de Iniciar Sesión Flotante (Similar a la CTA de "Request Info") */
+        .login-cta {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .login-cta a {
+            background-color: #e04a4a; /* Color destacado */
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 20px;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(224, 74, 74, 0.5);
+        }
+        
+        footer {
+            background-color: #1a325b; 
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+        }
+

@@ -3,45 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Sector Transporte{% endblock %}</title>
+    <title>{% block title %}Ecoturismo Magdalena Medio{% endblock %}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
     {% block extra_css %}{% endblock %}
     <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
     {% block extra_js %}{% endblock %}
-</head>
+
+    </head>
 <body>
+        <div class="login-cta">
+        <a href="{{ url_for('login') }}">INICIAR SESIÓN</a>
+    </div>
+
     {% block header %}
         <header>
-            {% include 'includes/barra_navegacion.html' %}
+            {% include 'includes/barra_navegacion.html' %} 
         </header>
     {% endblock %}
 
-    <main>  
-        {% block content %}
-            <section class="rutas-container">
-                <h1>¡Bienvenidos a Transporte Barrancabermeja!</h1>
-                <p>Tu solución para moverte por la Capital Petrolera y sus alrededores de forma fácil y segura.</p>
-        
-                <div class="ruta-item">
-                    <h2>Explora Nuestras Rutas</h2>
-                    <p>Desde el Río Magdalena hasta Bucaramanga, conectamos la ciudad con sus zonas aledañas.</p>
-                    <a href="/rutas_a_elegir"><img src="{{ url_for('static', filename='images/vehiculos.jpg') }}" alt="Vehículos disponibles" class="ruta-img"></a>
-                </div>
-        
-                <div class="ruta-item">
-                    <h2>Elige Tu Vehículo</h2>
-                    <p>Taxis, buses o vehículos particulares disponibles para tus viajes diarios o especiales.</p>
-                    <a href="/vehiculos_usables"><img src="{{ url_for('static', filename='images/vehiculos.jpg') }}" alt="Vehículos disponibles" class="ruta-img"></a>
-                </div>
-        
-                <div class="ruta-item">
-                    <h2>Reserva Ahora</h2>
-                    <p>Inicia sesión y reserva tu transporte en pocos pasos. Paga como prefieras.</p>
-                    <a href="/reservas_a_realizar"><img src="{{ url_for('static', filename='images/reserva.jpg') }}" alt="Reserva en línea" class="ruta-img"></a>
-                </div>
+<main>  
+{% block content %}
+    <section class="rutas-container">
+        <h1>¡Bienvenidos a la plataforma de ecoturismo magdalenamedio!</h1>
+        <p>Tu solución para moverte por la Capital Petrolera y sus alrededores de forma fácil y segura.</p>
+                
+        <div class="cards-grid">
+            <div class="ruta-item">
+                <a href="/rutas_a_elegir">
+                    <img src="{{ url_for('static', filename='images/viajescomfama-magdalena-medio-03.png') }}" alt="Explora Rutas" class="ruta-img">
+                </a>
+        <h2>Explora Nuestras Rutas</h2>
+        <p>Descubre los mejores caminos y senderos para disfrutar de la naturaleza.</p>
+        </div>
+            
+        <div class="ruta-item">
+            <a href="/vehiculos_usables">
+                <img src="{{ url_for('static', filename='images/he-6.png') }}" alt="Vehículos disponibles" class="ruta-img">
+            </a>
+            <h2>Elige Tu Vehículo</h2>
+            <p>Tus opciones de transporte para explorar la región.</p>
+            </div>
+            
+        <div class="ruta-item">
+            <a href="/reservas_a_realizar">
+                <img src="{{ url_for('static', filename='images/viajescomfama-magdalena-medio-03.png') }}" alt="Reserva en línea" class="ruta-img">
+            </a>
+            <h2>Reserva Ahora</h2>
+            <p>Inicia sesión y reserva tu transporte en pocos pasos. Paga como prefieras.</p>
+            </div>
+        </div>
             </section>
-        {% endblock %}
+{% endblock %}
 
     </main>
 
@@ -49,5 +62,4 @@
         {% include 'includes/footer.html' %}
     </footer>
 </body>
-</html>
 </html>
