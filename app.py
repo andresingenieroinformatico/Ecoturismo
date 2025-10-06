@@ -128,5 +128,14 @@ def about():
     return render_template('about.html')
 
 
+@app.route('/lugares')
+def lugares():
+    return render_template('lugares.html')
+
+
+@app.route('/reservas')
+def reservas():
+    return render_template('reservas.html')
+
 if __name__ == '__main__':
     app.run(debug=True)
