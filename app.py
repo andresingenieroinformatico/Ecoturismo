@@ -26,10 +26,57 @@ def get_db():
 
 
 @app.route('/')
-def pagina_principal():
-    if 'email' in session:
-        return redirect(url_for('index'))
+def index():
     return render_template('index.html')
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        primer_N = request.form.get('primer_N')
+        segundo_N = request.form.get('segundo_N', '')
+        primer_A = request.form.get('primer_A')
+        segundo_A = request.form.get('segundo_A', '')
+        celular = request.form.get('celular')
+        email = request.form.get('email')
+        cedula = request.form.get('cedula')
+        tipo_usu = request.form.get('tipo_usu')
+        password = request.form.get('password')
+        if not all([primer_N, primer_A, celular, email, cedula, tipo_usu, password]):
+            flash("Por favor, complete todos los campos obligatorios.", "error")
+            return render_template('register.html')
+        celular = celular.strip()
+        if not celular.startswith('+57'):
+            if celular.startswith('0'):
+                celular = '+57' + celular[1:]
+            elif celular.startswith('3'):
+                celular = '+57' + celular
+            else:
+                celular = '+57' + celular  
+        db, cursor = get_db()
+        cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
+        if cursor.fetchone():
+            flash("El correo electrónico ya está registrado.", "error")
+            return render_template('register.html')
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        try:
+            cursor.execute(
+                "INSERT INTO usuarios (primer_N, segundo_N, primer_A, segundo_A, celular, email, cedula, tipo_usu, password) "
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (primer_N, segundo_N, primer_A, segundo_A, celular, email, cedula, tipo_usu, hashed_password)
+            )
+            db.commit()
+            session['email'] = email
+            session['primer_N'] = primer_N
+            session['primer_A'] = primer_A
+            flash("Registro exitoso. Bienvenido!", "success")
+            return redirect(url_for('login'))
+        except pymysql.Error as e:
+            db.rollback()
+            flash(f"Error al registrar: {str(e)}", "error")
+            return render_template('register.html')
+    return render_template('register.html')
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
