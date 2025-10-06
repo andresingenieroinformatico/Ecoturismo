@@ -24,6 +24,8 @@ def get_db():
             raise Exception(f"Error al conectar a la base de datos: {err}")
     return g.db, g.cursor
 
+app = Flask(__name__)
+
 
 @app.route('/')
 def pagina_principal():
