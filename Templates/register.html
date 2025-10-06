@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro de Usuarios{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="login-page">
+    <div class="image-container">
+        <img src="{{ url_for('static', filename='images/vehiculos.jpeg') }}" alt="Imagen de fondo">
+    </div> 
+    <div class="login-container">
+        <form class="login-form" action="/registro" method="POST">
+            <h2 align="center">Registro de Usuarios</h2>
+
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-message error">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
+
+            <div class="form-group">
+                <i class="fas fa-user icon"></i>
+                <input type="text" name="primer_N" placeholder="Primer Nombre" required>
+            </div>
+
+            <div class="form-group">
+                <i class="fas fa-user icon"></i>
+                <input type="text" name="primer_A" placeholder="Primer Apellido" required>
+            </div>
+
+            <div class="form-group">
+                <i class="fas fa-envelope icon"></i>
+                <input type="email" name="email" placeholder="Correo Electrónico" required>
+            </div>
+
+            <div class="form-group">
+                <i class="fas fa-lock icon"></i>
+                <input type="password" name="password" placeholder="Contraseña" required>
+            </div>
+
+            <div class="form-group">
+                <i class="fas fa-lock icon"></i>
+                <input type="password" name="confirmPassword" placeholder="Confirmar Contraseña" required>
+            </div>
+
+            <div class="form-group">
+                <i class="fas fa-users icon"></i>
+                <select name="tipo_usu" required>
+                    <option value="" disabled selected>Selecciona Tipo de Usuario</option>
+                    <option value="Ciudadano">Ciudadano</option>
+                    <option value="Administrador">Administrador</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn">Registrarse</button>
+
+            <div class="help-link">
+                <p>¿Ya tienes cuenta? <a href="/login">Inicia sesión aquí</a></p>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -64,3 +64,48 @@ def login():
             flash(f"Error en la base de datos: {str(e)}", "error")
             return render_template('login.html')
     return render_template('login.html')
+
+@app.route('/registro', methods=['GET', 'POST'])
+def registro():
+    if request.method == 'POST':
+        primer_N = request.form['primer_N']
+        primer_A = request.form['primer_A']
+        email = request.form['email']
+        password = request.form['password']
+        confirmPassword = request.form['confirmPassword']
+        tipo_usu = request.form['tipo_usu']
+
+        # Validación básica
+        if password != confirmPassword:
+            flash("Las contraseñas no coinciden.", "error")
+            return render_template('register.html')
+
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+        try:
+            db, cursor = get_db()
+
+            # Verificar si el correo ya existe
+            cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
+            existing_user = cursor.fetchone()
+            if existing_user:
+                flash("Este correo ya está registrado.", "error")
+                return render_template('register.html')
+
+            # Insertar nuevo usuario
+            cursor.execute(
+                "INSERT INTO usuarios (primer_N, primer_A, email, password, tipo_usu) VALUES (%s, %s, %s, %s, %s)",
+                (primer_N, primer_A, email, hashed_password, tipo_usu)
+            )
+            db.commit()
+
+            flash("Registro exitoso. ¡Ya puedes iniciar sesión!", "success")
+            return redirect(url_for('login'))
+
+        except pymysql.MySQLError as e:
+            flash(f"Error en la base de datos: {str(e)}", "error")
+
+    return render_template('register.html')
+
+if __name__ == '__main__':
+    app.run(debug=True)
