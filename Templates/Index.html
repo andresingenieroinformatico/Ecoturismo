@@ -1,53 +1,66 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Sector Transporte{% endblock %}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+{% extends 'base.html' %}
+
+{% block title %}Bienvenido{% endblock %}
+
+{% block header %}
+    <header>
+        {% include 'includes/barra_inicio_sesion.html' %}
+    </header>
+{% endblock %}
+
+{% block extra_css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
-    {% block extra_css %}{% endblock %}
-    <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
-    {% block extra_js %}{% endblock %}
-</head>
-<body>
-    {% block header %}
-        <header>
-            {% include 'includes/barra_navegacion.html' %}
-        </header>
-    {% endblock %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/barra_inicio_sesion.css') }}">
+{% endblock %}
 
-    <main>  
-        {% block content %}
-            <section class="rutas-container">
-                <h1>¡Bienvenidos a Transporte Barrancabermeja!</h1>
-                <p>Tu solución para moverte por la Capital Petrolera y sus alrededores de forma fácil y segura.</p>
-        
-                <div class="ruta-item">
-                    <h2>Explora Nuestras Rutas</h2>
-                    <p>Desde el Río Magdalena hasta Bucaramanga, conectamos la ciudad con sus zonas aledañas.</p>
-                    <a href="/rutas_a_elegir"><img src="{{ url_for('static', filename='images/vehiculos.jpg') }}" alt="Vehículos disponibles" class="ruta-img"></a>
-                </div>
-        
-                <div class="ruta-item">
-                    <h2>Elige Tu Vehículo</h2>
-                    <p>Taxis, buses o vehículos particulares disponibles para tus viajes diarios o especiales.</p>
-                    <a href="/vehiculos_usables"><img src="{{ url_for('static', filename='images/vehiculos.jpg') }}" alt="Vehículos disponibles" class="ruta-img"></a>
-                </div>
-        
-                <div class="ruta-item">
-                    <h2>Reserva Ahora</h2>
-                    <p>Inicia sesión y reserva tu transporte en pocos pasos. Paga como prefieras.</p>
-                    <a href="/reservas_a_realizar"><img src="{{ url_for('static', filename='images/reserva.jpg') }}" alt="Reserva en línea" class="ruta-img"></a>
-                </div>
-            </section>
-        {% endblock %}
+{% block content %}
+    <div class="main-container">
 
-    </main>
+        <div class="welcome-text">
+            <h2>¡Bienvenido a Nuestra Página Web{% if user %}, {{ user.nombre }}!{% endif %}</h2>
+            <p>Explora Barrancabermeja, la Capital Petrolera de Colombia, y descubre sus rutas, cultura y naturaleza a orillas del majestuoso Río Magdalena.</p>
+        </div>
 
-    <footer>
-        {% include 'includes/footer.html' %}
-    </footer>
-</body>
-</html>
-</html>
+        <section class="intro-section">
+            <h3>Descubre Barrancabermeja</h3>
+            <p>Barrancabermeja, ubicada en el corazón de Santander, es conocida por su vibrante cultura, su importancia en la industria petrolera y su rica biodiversidad. Desde el Paseo de la Cultura en el barrio Galán hasta las rutas fluviales por el Río Magdalena, hay algo para todos los gustos. ¡Empieza tu aventura hoy!</p>
+            <a href="{{ url_for('rutas_a_elegir') }}" class="cta-button">Explorar Rutas</a>
+        </section>
+
+        <section class="rutas-destacadas">
+            <h3>Rutas Populares</h3>
+            <div class="rutas-list">
+                <div class="ruta-card">
+                    <h4>Yondó</h4>
+                    <p>Disfruta de un paseo en lancha por el Río Magdalena y sus ciénagas, con atardeceres inolvidables.</p>
+                    <a href="{{ url_for('yondo') }}">Ver más</a>
+                </div>
+                <div class="ruta-card">
+                    <h4>Bucaramanga</h4>
+                    <p>Viaja a la capital de Santander en un trayecto de 2 horas y 30 minutos por una carretera escénica.</p>
+                    <a href="{{ url_for('bucaramanga') }}">Ver más</a>
+                </div>
+                <div class="ruta-card">
+                    <h4>Puerto Wilches</h4>
+                    <p>Explora la biodiversidad de la región con rutas terrestres y fluviales ideales para amantes de la naturaleza.</p>
+                    <a href="{{ url_for('puerto_wilches') }}">Ver más</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="pasos-section">
+            <h3>¿Cómo Explorar Barrancabermeja?</h3>
+            <p>Sigue estos pasos para planificar tu viaje y descubrir lo mejor de la ciudad y sus alrededores.</p>
+            <a href="{{ url_for('rutas_a_elegir') }}" class="cta-button">ver rutas</a>
+        </section>
+
+        <section class="novedades">
+            <h3>Novedades y Eventos</h3>
+            <ul>
+                <li>Festival de Cumbia y Salsa en el Paseo de la Cultura - 15 de abril</li>
+                <li>Nueva ruta fluvial hacia Yondó disponible a partir de mayo</li>
+                <li>Exposición de arte local en el barrio Galán - 20 de abril</li>
+            </ul>
+        </section>
+    </div>
+{% endblock %}

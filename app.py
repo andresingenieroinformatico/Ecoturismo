@@ -112,5 +112,21 @@ def login():
             return render_template('login.html')
     return render_template('login.html')
 
+@app.route('/index')
+def index():
+    if 'email' not in session:
+        flash("Por favor, inicia sesión para continuar.", "error")
+        return redirect(url_for('login'))
+    usuario = {
+        'primer_N': session.get('primer_N', 'Usuario'),
+        'primer_A': session.get('primer_A', '')
+    }
+    return render_template('index.html', usuario=usuario)
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+
 if __name__ == '__main__':
     app.run(debug=True)
