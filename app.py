@@ -13,8 +13,8 @@ bcrypt = Bcrypt(app)
 app.secret_key = "advpjsh"
 
 @app.route('/')
-def index():
-    return render_template('index.html')
+def base():
+    return render_template('base.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -133,9 +133,29 @@ def index():
     }
     return render_template('index.html', usuario=usuario)
 
+@app.route('/lugares')
+def rlugares():
+    if 'email' not in session:
+        flash("Por favor, inicia sesión para continuar.", "error")
+        return redirect(url_for('login'))
+    usuario = {
+        'primer_N': session.get('primer_N', 'Usuario'),
+        'primer_A': session.get('primer_A', '')
+    }
+    return render_template('lugares.html', usuario=usuario)
+
 @app.route('/about')
 def about():
     return render_template('about.html')
+
+@app.route('/lugares')
+def lugares():
+    return render_template('lugares.html')
+
+
+@app.route('/como_reservar')
+def como_reservar():
+    return render_template('como_reservar.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
