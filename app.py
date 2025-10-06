@@ -1,20 +1,22 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash
 from flask_bcrypt import Bcrypt
 from supabase import create_client, Client
+from dotenv import load_dotenv
 import os
+load_dotenv()
 
 # Configuración de Supabase
-url: str = os.environ.get("SUPABASE_URL")
-key: str = os.environ.get("SUPABASE_KEY")
-supabase: Client = create_client(url, key)
+url: str = os.getenv("SUPABASE_URL")
+key: str = os.getenv("SUPABASE_KEY")
+# Configuración de Supabase
+try:
+    supabase: Client = create_client(url, key)
+except Exception as e:
+    print(e)
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 app.secret_key = "advpjsh"
-
-@app.route('/')
-def index():
-    return render_template('index.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -61,7 +63,7 @@ def register():
                 "primer_apellido": primer_A,
                 "segundo_apellido": segundo_A,
                 "correo": email,
-                "contraseña": hashed_password,
+                "contrasena": hashed_password,
                 "cedula": cedula,
                 "telefono": celular,
                 "tipo_usuario": str(tipo_usu).lower()
@@ -100,7 +102,8 @@ def login():
 
             user = user.data[0]
 
-            if bcrypt.check_password_hash(user['contraseña'], password):
+            if bcrypt.check_password_hash(user['contrasena'], password):
+                print(user['tipo_usuario'], tipo_usu.lower())
                 if user['tipo_usuario'] == tipo_usu.lower():
                     session['email'] = user['correo']
                     session['primer_N'] = user['primer_nombre']
