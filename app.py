@@ -24,14 +24,12 @@ def get_db():
             raise Exception(f"Error al conectar a la base de datos: {err}")
     return g.db, g.cursor
 
-app = Flask(__name__)
-
 
 @app.route('/')
 def pagina_principal():
     if 'email' in session:
-        return redirect(url_for('base'))
-    return render_template('base.html')
+        return redirect(url_for('index'))
+    return render_template('index.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -66,3 +64,6 @@ def login():
             flash(f"Error en la base de datos: {str(e)}", "error")
             return render_template('login.html')
     return render_template('login.html')
+
+if __name__ == '__main__':
+    app.run(debug=True)
