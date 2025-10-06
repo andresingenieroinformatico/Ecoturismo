@@ -107,7 +107,6 @@ def login():
             user = user.data[0]
 
             if bcrypt.check_password_hash(user['contrasena'], password):
-                print(user['tipo_usuario'], tipo_usu.lower())
                 if user['tipo_usuario'] == tipo_usu.lower():
                     session['email'] = user['correo']
                     session['primer_N'] = user['primer_nombre']
@@ -117,6 +116,7 @@ def login():
                     if user['tipo_usuario'] == 'admin':
                         return redirect(url_for('index_admin'))
                     else:
+                        print('entro')
                         return redirect(url_for('index'))
                 else:
                     flash("El rol seleccionado no coincide con el registrado.", "error")
