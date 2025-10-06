@@ -6,15 +6,30 @@ import pymysql
 from itsdangerous import URLSafeSerializer as Serializer
 
 app = Flask(__name__)
+bcrypt = Bcrypt(app)
+app.secret_key = "advpjsh"
 
-app = Flask(__name__)
+def get_db():
+    if "db" not in g:
+        try:
+            g.db = pymysql.connect(
+                host="localhost",
+                user="root",
+                password="12072022",
+                database="sector_transporte",
+                cursorclass=pymysql.cursors.DictCursor
+            )
+            g.cursor = g.db.cursor()
+        except pymysql.MySQLError as err:
+            raise Exception(f"Error al conectar a la base de datos: {err}")
+    return g.db, g.cursor
 
 
 @app.route('/')
 def pagina_principal():
     if 'email' in session:
         return redirect(url_for('index'))
-    return render_template('base.html')
+    return render_template('index.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -25,8 +40,8 @@ def login():
         if not tipo_usu or not email or not password:
             flash("Por favor, complete todos los campos.", "error")
             return render_template('login.html')
-        db, cursor = get_db()
         try:
+            db, cursor = get_db()
             cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
             user = cursor.fetchone()
             if user and bcrypt.check_password_hash(user['password'], password):
@@ -49,3 +64,6 @@ def login():
             flash(f"Error en la base de datos: {str(e)}", "error")
             return render_template('login.html')
     return render_template('login.html')
+
+if __name__ == '__main__':
+    app.run(debug=True)
