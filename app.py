@@ -1,20 +1,22 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash
 from flask_bcrypt import Bcrypt
 from supabase import create_client, Client
+from dotenv import load_dotenv
 import os
+load_dotenv()
 
 # Configuración de Supabase
-url = "urizwqoasknobwwmqsgx.supabase.co"
-key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyaXp3cW9hc2tub2J3d21xc2d4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk3NTU3NjksImV4cCI6MjA3NTMzMTc2OX0.xihhrX_8mcyP9y34yfJGkZwBqhNNXwlwb1uEE9ANyUk"
-supabase: Client = create_client(url, key)
+url: str = os.getenv("SUPABASE_URL")
+key: str = os.getenv("SUPABASE_KEY")
+# Configuración de Supabase
+try:
+    supabase: Client = create_client(url, key)
+except Exception as e:
+    print(e)
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 app.secret_key = "advpjsh"
-
-@app.route('/')
-def base():
-    return render_template('base.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -61,7 +63,7 @@ def register():
                 "primer_apellido": primer_A,
                 "segundo_apellido": segundo_A,
                 "correo": email,
-                "contraseña": hashed_password,
+                "contrasena": hashed_password,
                 "cedula": cedula,
                 "telefono": celular,
                 "tipo_usuario": str(tipo_usu).lower()
@@ -100,7 +102,8 @@ def login():
 
             user = user.data[0]
 
-            if bcrypt.check_password_hash(user['contraseña'], password):
+            if bcrypt.check_password_hash(user['contrasena'], password):
+                print(user['tipo_usuario'], tipo_usu.lower())
                 if user['tipo_usuario'] == tipo_usu.lower():
                     session['email'] = user['correo']
                     session['primer_N'] = user['primer_nombre']
@@ -133,29 +136,9 @@ def index():
     }
     return render_template('index.html', usuario=usuario)
 
-@app.route('/lugares')
-def rlugares():
-    if 'email' not in session:
-        flash("Por favor, inicia sesión para continuar.", "error")
-        return redirect(url_for('login'))
-    usuario = {
-        'primer_N': session.get('primer_N', 'Usuario'),
-        'primer_A': session.get('primer_A', '')
-    }
-    return render_template('lugares.html', usuario=usuario)
-
 @app.route('/about')
 def about():
     return render_template('about.html')
-
-@app.route('/lugares')
-def lugares():
-    return render_template('lugares.html')
-
-
-@app.route('/como_reservar')
-def como_reservar():
-    return render_template('como_reservar.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
