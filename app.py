@@ -1,34 +1,20 @@
-from flask import Flask, render_template, redirect, url_for, request, session, flash, g
+from flask import Flask, render_template, redirect, url_for, request, session, flash
 from flask_bcrypt import Bcrypt
-import random
-from werkzeug.exceptions import NotFound
-import pymysql
-from itsdangerous import URLSafeSerializer as Serializer
+from supabase import create_client, Client
+import os
+
+# Configuración de Supabase
+url: str = os.environ.get("SUPABASE_URL")
+key: str = os.environ.get("SUPABASE_KEY")
+supabase: Client = create_client(url, key)
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 app.secret_key = "advpjsh"
 
-def get_db():
-    if "db" not in g:
-        try:
-            g.db = pymysql.connect(
-                host="localhost",
-                user="root",
-                password="12072022",
-                database="sector_transporte",
-                cursorclass=pymysql.cursors.DictCursor
-            )
-            g.cursor = g.db.cursor()
-        except pymysql.MySQLError as err:
-            raise Exception(f"Error al conectar a la base de datos: {err}")
-    return g.db, g.cursor
-
-
 @app.route('/')
-def base():
-    return render_template('base.html')
-
+def index():
+    return render_template('index.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -42,9 +28,13 @@ def register():
         cedula = request.form.get('cedula')
         tipo_usu = request.form.get('tipo_usu')
         password = request.form.get('password')
+
+        # Validación básica
         if not all([primer_N, primer_A, celular, email, cedula, tipo_usu, password]):
             flash("Por favor, complete todos los campos obligatorios.", "error")
             return render_template('register.html')
+
+        # Formatear celular
         celular = celular.strip()
         if not celular.startswith('+57'):
             if celular.startswith('0'):
@@ -53,28 +43,41 @@ def register():
                 celular = '+57' + celular
             else:
                 celular = '+57' + celular  
-        db, cursor = get_db()
-        cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
-        if cursor.fetchone():
+
+        # Verificar si el correo ya existe
+        user = supabase.table('usuarios').select('*').eq('correo', email).execute()
+        if user.data:
             flash("El correo electrónico ya está registrado.", "error")
             return render_template('register.html')
+
+        # Encriptar contraseña
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+        # Insertar usuario
         try:
-            cursor.execute(
-                "INSERT INTO usuarios (primer_N, segundo_N, primer_A, segundo_A, celular, email, cedula, tipo_usu, password) "
-                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                (primer_N, segundo_N, primer_A, segundo_A, celular, email, cedula, tipo_usu, hashed_password)
-            )
-            db.commit()
+            supabase.table('usuarios').insert({
+                "primer_nombre": primer_N,
+                "segundo_nombre": segundo_N,
+                "primer_apellido": primer_A,
+                "segundo_apellido": segundo_A,
+                "correo": email,
+                "contraseña": hashed_password,
+                "cedula": cedula,
+                "telefono": celular,
+                "tipo_usuario": str(tipo_usu).lower()
+            }).execute()
+
             session['email'] = email
             session['primer_N'] = primer_N
             session['primer_A'] = primer_A
             flash("Registro exitoso. Bienvenido!", "success")
             return redirect(url_for('login'))
-        except pymysql.Error as e:
-            db.rollback()
-            flash(f"Error al registrar: {str(e)}", "error")
+
+        except Exception as e:
+            flash(f"Error al registrarse: {str(e)}", "error")
+            print(e)
             return render_template('register.html')
+
     return render_template('register.html')
 
 
@@ -84,32 +87,39 @@ def login():
         tipo_usu = request.form.get('tipo_usu') 
         email = request.form.get('email')
         password = request.form.get('password')
+
         if not tipo_usu or not email or not password:
             flash("Por favor, complete todos los campos.", "error")
             return render_template('login.html')
+
         try:
-            db, cursor = get_db()
-            cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
-            user = cursor.fetchone()
-            if user and bcrypt.check_password_hash(user['password'], password):
-                if user['tipo_usu'] == tipo_usu:
-                    session['email'] = user['email']
-                    session['primer_N'] = user['primer_N']
-                    session['primer_A'] = user['primer_A']
-                    session['tipo_usu'] = user['tipo_usu']
-                    if user['tipo_usu'] == 'Administrador':
+            user = supabase.table('usuarios').select('*').eq('correo', email).execute()
+            if not user.data:
+                flash("Usuario no encontrado.", "error")
+                return render_template('login.html')
+
+            user = user.data[0]
+
+            if bcrypt.check_password_hash(user['contraseña'], password):
+                if user['tipo_usuario'] == tipo_usu.lower():
+                    session['email'] = user['correo']
+                    session['primer_N'] = user['primer_nombre']
+                    session['primer_A'] = user['primer_apellido']
+                    session['tipo_usu'] = user['tipo_usuario']
+
+                    if user['tipo_usuario'] == 'admin':
                         return redirect(url_for('index_admin'))
                     else:
                         return redirect(url_for('index'))
                 else:
                     flash("El rol seleccionado no coincide con el registrado.", "error")
-                    return render_template('login.html')
             else:
-                flash("Rol, Usuario o contraseña incorrectos.", "error")
-                return render_template('login.html')
-        except pymysql.Error as e:
+                flash("Contraseña incorrecta.", "error")
+
+        except Exception as e:
             flash(f"Error en la base de datos: {str(e)}", "error")
-            return render_template('login.html')
+            print(e)
+
     return render_template('login.html')
 
 @app.route('/index')
@@ -126,7 +136,6 @@ def index():
 @app.route('/about')
 def about():
     return render_template('about.html')
-
 
 if __name__ == '__main__':
     app.run(debug=True)
