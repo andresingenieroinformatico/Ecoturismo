@@ -14,7 +14,7 @@ try:
 except Exception as e:
     print(e)
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', template_folder='templates')
 bcrypt = Bcrypt(app)
 app.secret_key = "advpjsh"
 
