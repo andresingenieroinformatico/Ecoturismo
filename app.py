@@ -151,6 +151,107 @@ def rlugares():
     }
     return render_template('lugares.html', usuario=usuario)
 
+@app.route('/mi_perfil')
+def mi_perfil():
+    if 'email' not in session:
+        flash("Por favor, inicia sesión para continuar.", "error")
+        return redirect(url_for('login'))
+    email = session['email']
+    try:
+        resp = supabase.table('usuarios') \
+            .select('primer_nombre,segundo_nombre,primer_apellido,segundo_apellido,telefono,correo,cedula,tipo_usuario') \
+            .eq('correo', email).execute()
+        if not resp.data:
+            flash("Usuario no encontrado.", "error")
+            return redirect(url_for('login'))
+        u = resp.data[0]
+        # Map DB fields to the keys your templates expect
+        user_data = {
+            'primer_N': u.get('primer_nombre'),
+            'segundo_N': u.get('segundo_nombre'),
+            'primer_A': u.get('primer_apellido'),
+            'segundo_A': u.get('segundo_apellido'),
+            'celular': u.get('telefono'),
+            'email': u.get('correo'),
+            'cedula': u.get('cedula'),
+            'tipo_usu': u.get('tipo_usuario')
+        }
+    except Exception as e:
+        flash(f"Error en la base de datos: {str(e)}", "error")
+        return redirect(url_for('login'))
+    return render_template('mi_perfil.html', usuario=user_data)
+
+
+@app.route('/actualizar_perfil', methods=['GET', 'POST'])
+def actualizar_perfil():
+    if 'email' not in session:
+        flash("Por favor, inicia sesión para continuar.", "error")
+        return redirect(url_for('login'))
+    email_sesion = session['email']
+
+    if request.method == 'POST':
+        primer_N = request.form.get('primer_N')
+        segundo_N = request.form.get('segundo_N', '')
+        primer_A = request.form.get('primer_A')
+        segundo_A = request.form.get('segundo_A', '')
+        celular = request.form.get('celular')
+
+        if not all([primer_N, primer_A, celular]):
+            flash("Los campos obligatorios no pueden estar vacíos.", "error")
+            return redirect(url_for('actualizar_perfil'))
+
+        celular = celular.strip()
+        if not celular.startswith('+57'):
+            if celular.startswith('0'):
+                celular = '+57' + celular[1:]
+            elif celular.startswith('3'):
+                celular = '+57' + celular
+            else:
+                celular = '+57' + celular
+
+        try:
+            resp = supabase.table('usuarios').update({
+                "primer_nombre": primer_N,
+                "segundo_nombre": segundo_N,
+                "primer_apellido": primer_A,
+                "segundo_apellido": segundo_A,
+                "telefono": celular
+            }).eq('correo', email_sesion).execute()
+
+            # Optionally check resp for errors depending on your supabase client behavior
+            session['primer_N'] = primer_N
+            session['primer_A'] = primer_A
+            flash("Perfil actualizado exitosamente.", "success")
+            return redirect(url_for('mi_perfil'))
+        except Exception as e:
+            flash(f"Error en la base de datos: {str(e)}", "error")
+            return redirect(url_for('actualizar_perfil'))
+
+    # GET: obtener datos actuales para mostrar en el formulario
+    try:
+        resp = supabase.table('usuarios') \
+            .select('primer_nombre,segundo_nombre,primer_apellido,segundo_apellido,telefono,correo,cedula,tipo_usuario') \
+            .eq('correo', email_sesion).execute()
+        if not resp.data:
+            flash("Usuario no encontrado.", "error")
+            return redirect(url_for('login'))
+        u = resp.data[0]
+        user_data = {
+            'primer_N': u.get('primer_nombre'),
+            'segundo_N': u.get('segundo_nombre'),
+            'primer_A': u.get('primer_apellido'),
+            'segundo_A': u.get('segundo_apellido'),
+            'celular': u.get('telefono'),
+            'email': u.get('correo'),
+            'cedula': u.get('cedula'),
+            'tipo_usu': u.get('tipo_usuario')
+        }
+    except Exception as e:
+        flash(f"Error en la base de datos: {str(e)}", "error")
+        return redirect(url_for('login'))
+
+    return render_template('actualizar_perfil.html', usuario=user_data)
+
 @app.route('/about')
 def about():
     return render_template('about.html')
@@ -162,6 +263,12 @@ def lugares():
 @app.route('/como_reservar')
 def como_reservar():
     return render_template('como_reservar.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
