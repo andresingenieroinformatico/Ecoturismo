@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash
 from flask_bcrypt import Bcrypt
+from functools import wraps
 from supabase import create_client, Client
 from dotenv import load_dotenv
 import os
@@ -17,6 +18,21 @@ except Exception as e:
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 app.secret_key = "advpjsh"
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'email' not in session:
+            flash("Por favor, inicia sesión para continuar.", "error")
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def get_session_user_data():
+    return {
+        'primer_N': session.get('primer_N', 'Usuario'),
+        'primer_A': session.get('primer_A', '')
+    }
 
 @app.route('/')
 def base():
@@ -73,9 +89,6 @@ def register():
                 "tipo_usuario": str(tipo_usu).lower()
             }).execute()
 
-            session['email'] = email
-            session['primer_N'] = primer_N
-            session['primer_A'] = primer_A
             flash("Registro exitoso. Bienvenido!", "success")
             return redirect(url_for('login'))
 
@@ -100,6 +113,7 @@ def login():
 
         try:
             user = supabase.table('usuarios').select('*').eq('correo', email).execute()
+            print('222222222222222')
             if not user.data:
                 flash("Usuario no encontrado.", "error")
                 return render_template('login.html')
@@ -116,7 +130,6 @@ def login():
                     if user['tipo_usuario'] == 'admin':
                         return redirect(url_for('index_admin'))
                     else:
-                        print('entro')
                         return redirect(url_for('index'))
                 else:
                     flash("El rol seleccionado no coincide con el registrado.", "error")
@@ -130,38 +143,47 @@ def login():
     return render_template('login.html')
 
 @app.route('/index')
+@login_required
 def index():
-    if 'email' not in session:
-        flash("Por favor, inicia sesión para continuar.", "error")
-        return redirect(url_for('login'))
-    usuario = {
-        'primer_N': session.get('primer_N', 'Usuario'),
-        'primer_A': session.get('primer_A', '')
-    }
+    usuario = get_session_user_data()
     return render_template('index.html', usuario=usuario)
 
 @app.route('/lugares')
-def rlugares():
-    if 'email' not in session:
-        flash("Por favor, inicia sesión para continuar.", "error")
-        return redirect(url_for('login'))
-    usuario = {
-        'primer_N': session.get('primer_N', 'Usuario'),
-        'primer_A': session.get('primer_A', '')
-    }
-    return render_template('lugares.html', usuario=usuario)
+@login_required
+def lugares():
+    user = get_session_user_data()
+    return render_template('lugares.html', user=user)
 
 @app.route('/about')
 def about():
     return render_template('about.html')
 
-@app.route('/lugares')
-def lugares():
-    return render_template('lugares.html')
-
 @app.route('/como_reservar')
 def como_reservar():
     return render_template('como_reservar.html')
+
+@app.route('/rutas_a_elegir')
+@login_required
+def rutas_a_elegir():
+    if 'email' not in session:
+        flash("Por favor, inicia sesión para continuar.", "error")
+        return redirect(url_for('login'))
+    return redirect(url_for('lugares'))
+
+@app.route('/yondo')
+@login_required
+def yondo():
+    return redirect(url_for('lugares'))
+
+@app.route('/bucaramanga')
+@login_required
+def bucaramanga():
+    return redirect(url_for('lugares'))
+
+@app.route('/puerto_wilches')
+@login_required
+def puerto_wilches():
+    return redirect(url_for('lugares'))
 
 if __name__ == '__main__':
     app.run(debug=True)
