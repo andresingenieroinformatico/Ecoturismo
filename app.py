@@ -48,9 +48,9 @@ def register():
             flash("Por favor, complete todos los campos obligatorios.", "error")
             return render_template('register.html')
         
-        exist=is_exists(data['correo'],supabase)
-        if exist:
-            flash("El correo electrónico ya está registrado.", "error")
+        exists=is_exists(data['correo'],supabase)
+        if exists['exists']:
+            flash("Usuario no disponible.", "error")
             return render_template('register.html')
 
         try:
@@ -65,7 +65,6 @@ def register():
 
     return render_template('register.html')
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -73,37 +72,23 @@ def login():
         email = request.form.get('email')
         password = request.form.get('password')
 
-        if not tipo_usu or not email or not password:
+        if not all([tipo_usu, email, password]):
             flash("Por favor, complete todos los campos.", "error")
             return render_template('login.html')
+        
+        user=is_exists(email, supabase)
 
-        try:
-            user = supabase.table('usuarios').select('*').eq('correo', email).execute()
-            if not user.data:
-                flash("Usuario no encontrado.", "error")
-                return render_template('login.html')
+        if bcrypt.check_password_hash(user['data'][0]['contrasena'], password) and user['exists']:
+            session['email'] = user['data'][0]['correo']
+            session['primer_N'] = user['data'][0]['primer_nombre']
+            session['primer_A'] = user['data'][0]['primer_apellido']
+            session['tipo_usu'] = user['data'][0]['tipo_usuario']
 
-            user = user.data[0]
-
-            if bcrypt.check_password_hash(user['contrasena'], password):
-                if user['tipo_usuario'] == tipo_usu.lower():
-                    session['email'] = user['correo']
-                    session['primer_N'] = user['primer_nombre']
-                    session['primer_A'] = user['primer_apellido']
-                    session['tipo_usu'] = user['tipo_usuario']
-
-                    if user['tipo_usuario'] == 'admin':
-                        return redirect(url_for('index_admin'))
-                    else:
-                        return redirect(url_for('index'))
-                else:
-                    flash("El rol seleccionado no coincide con el registrado.", "error")
-            else:
-                flash("Contraseña incorrecta.", "error")
-
-        except Exception as e:
-            flash(f"Error en la base de datos: {str(e)}", "error")
-            print(e)
+            if session['tipo_usu'] == 'admin':
+                return redirect(url_for('index_admin'))
+            return redirect(url_for('index'))
+        else:
+            flash("Usuario, contraseña o rol incorrecto.", "error")
 
     return render_template('login.html')
 

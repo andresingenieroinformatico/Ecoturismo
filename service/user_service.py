@@ -1,8 +1,6 @@
 def insert_user_service(data, supabase):
      try:
-          supabase.table('usuarios').insert({
-               data
-          }).execute()
+          supabase.table('usuarios').insert(data).execute()
      except Exception as e:
           print(e)
      
