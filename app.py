@@ -1,32 +1,14 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash
+from utils.login import login_required
+from utils.phone_format import format_phone
+from controller.user_controller import insert_user, is_exists
 from flask_bcrypt import Bcrypt
-from functools import wraps
-from supabase import create_client, Client
-from dotenv import load_dotenv
-import os
-load_dotenv()
-
-# Configuración de Supabase
-url: str = os.getenv("SUPABASE_URL")
-key: str = os.getenv("SUPABASE_KEY")
-# Configuración de Supabase
-try:
-    supabase: Client = create_client(url, key)
-except Exception as e:
-    print(e)
+from connection import connection
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 app.secret_key = "advpjsh"
-
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'email' not in session:
-            flash("Por favor, inicia sesión para continuar.", "error")
-            return redirect(url_for('login'))
-        return f(*args, **kwargs)
-    return decorated_function
+supabase=connection()
 
 def get_session_user_data():
     return {
@@ -41,59 +23,43 @@ def base():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        primer_N = request.form.get('primer_N')
-        segundo_N = request.form.get('segundo_N', '')
-        primer_A = request.form.get('primer_A')
-        segundo_A = request.form.get('segundo_A', '')
-        celular = request.form.get('celular')
-        email = request.form.get('email')
-        cedula = request.form.get('cedula')
-        tipo_usu = request.form.get('tipo_usu')
-        password = request.form.get('password')
+        clave=request.form.get('password')
+        hashed_password = bcrypt.generate_password_hash(clave).decode('utf-8')
+        data={
+            "primer_nombre" : request.form.get('primer_N'),
+            "segundo_nombre" : request.form.get('segundo_N', ''),
+            "primer_apellido" : request.form.get('primer_A'),
+            "segundo_apellido" : request.form.get('segundo_A', ''),
+            "correo" : request.form.get('email'),
+            "contrasena" : hashed_password,
+            "cedula" : request.form.get('cedula'),
+            "telefono" : format_phone(request.form.get('celular')),
+            "tipo_usuario" : request.form.get('tipo_usu').lower()
+        }
 
-        # Validación básica
-        if not all([primer_N, primer_A, celular, email, cedula, tipo_usu, password]):
+        if not all([data['primer_nombre'], 
+                    data['primer_apellido'], 
+                    data['cedula'], 
+                    data['correo'], 
+                    data['contrasena'], 
+                    data['tipo_usuario'], 
+                    data['telefono']]
+                ):
             flash("Por favor, complete todos los campos obligatorios.", "error")
             return render_template('register.html')
-
-        # Formatear celular
-        celular = celular.strip()
-        if not celular.startswith('+57'):
-            if celular.startswith('0'):
-                celular = '+57' + celular[1:]
-            elif celular.startswith('3'):
-                celular = '+57' + celular
-            else:
-                celular = '+57' + celular  
-
-        # Verificar si el correo ya existe
-        user = supabase.table('usuarios').select('*').eq('correo', email).execute()
-        if user.data:
+        
+        exist=is_exists(data['correo'],supabase)
+        if exist:
             flash("El correo electrónico ya está registrado.", "error")
             return render_template('register.html')
 
-        # Encriptar contraseña
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-
-        # Insertar usuario
         try:
-            supabase.table('usuarios').insert({
-                "primer_nombre": primer_N,
-                "segundo_nombre": segundo_N,
-                "primer_apellido": primer_A,
-                "segundo_apellido": segundo_A,
-                "correo": email,
-                "contrasena": hashed_password,
-                "cedula": cedula,
-                "telefono": celular,
-                "tipo_usuario": str(tipo_usu).lower()
-            }).execute()
-
+            insert_user(data,supabase)
             flash("Registro exitoso. Bienvenido!", "success")
             return redirect(url_for('login'))
 
         except Exception as e:
-            flash(f"Error al registrarse: {str(e)}", "error")
+            flash(f"Error al registrarse", "error")
             print(e)
             return render_template('register.html')
 
@@ -113,7 +79,6 @@ def login():
 
         try:
             user = supabase.table('usuarios').select('*').eq('correo', email).execute()
-            print('222222222222222')
             if not user.data:
                 flash("Usuario no encontrado.", "error")
                 return render_template('login.html')
@@ -165,9 +130,6 @@ def como_reservar():
 @app.route('/rutas_a_elegir')
 @login_required
 def rutas_a_elegir():
-    if 'email' not in session:
-        flash("Por favor, inicia sesión para continuar.", "error")
-        return redirect(url_for('login'))
     return redirect(url_for('lugares'))
 
 @app.route('/yondo')
