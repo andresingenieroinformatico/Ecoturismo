@@ -37,3 +37,6 @@ dist/
 # ==== ARCHIVOS DE PRUEBA ====
 tests/__pycache__/
 test_*.py
+
+
+.gitignore
