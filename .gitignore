@@ -2,4 +2,13 @@
 /procfile
 /requirements.txt
 /pyvenv.cfg
-
+/.venv
+/.vscode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
