@@ -126,7 +126,6 @@ def login():
         except Exception as e:
             flash(f"Error en la base de datos: {str(e)}", "error")
             print(e)
-
     return render_template('login.html')
 
 @app.route('/index')
