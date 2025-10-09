@@ -1,14 +1,11 @@
 # Created by venv; see https://docs.python.org/3/library/venv.html
-/procfile
-/requirements.txt
-/pyvenv.cfg
-/.venv
-/.vscode
+# This file is used to ignore files and directories created by the venv module.
+# If you are using a different tool to create virtual environments, you may need to adjust this file accordingly.
+# For example, if you are using virtualenv, you might want to ignore the 'env' directory instead.
+# If you are using conda, you might want to ignore the 'envs' directory instead.
+# Adjust the patterns below to match the names of the directories created by your virtual environment tool. # You can also add other files or directories that you want to ignore in your project.
+# For example, you might want to ignore compiled Python files, log files, or temporary files.
+# See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more information about .gitignore files.
+venv/
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
-ENV/
