@@ -5,7 +5,7 @@ from controller.user_controller import insert_user, is_exists
 from flask_bcrypt import Bcrypt
 from connection import connection
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', template_folder='templates')
 bcrypt = Bcrypt(app)
 app.secret_key = "advpjsh"
 supabase=connection()

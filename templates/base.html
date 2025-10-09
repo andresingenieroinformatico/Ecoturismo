@@ -13,7 +13,7 @@
 <body>
     {% block header %}
         <header>
-            {% include 'includes/barra_navegacion.html' %}
+            {% include 'includes/barra_navegacion.html'  ignore missing %}
         </header>
     {% endblock %}
 
@@ -46,8 +46,7 @@
     </main>
 
     <footer>
-        {% include 'includes/footer.html' %}
+        {% include 'includes/footer.html' ignore missing %}
     </footer>
 </body>
-</html>
 </html>

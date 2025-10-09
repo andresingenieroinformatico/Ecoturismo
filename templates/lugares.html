@@ -1,22 +1,22 @@
 {% extends 'base.html' %}
 
-{% block title %}Rutas a Elegir{% endblock %}
+{% block title %}Lugares que puedes visitar{% endblock %}
 
 {% block header %}
     <header>
-        {% include 'includes/barra_navegacion.html' %}
+        {% include 'includes/barra_inicio_sesion.html' %}
     </header>
 {% endblock %}
 
 {% block extra_css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/lugares.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/barra_navegacion.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/barra_inicio_sesion.css') }}">
 
 {% endblock %}
 
 {% block content %}
     <div class="rutas-elegir-container">
-        <h1>Rutas a Elegir</h1>
+        <h1>Lugares que puedes visitar</h1>
         <p>Selecciona una de las rutas disponibles para explorar Barrancabermeja y sus alrededores. Cada ruta ofrece una experiencia única, desde paseos fluviales hasta viajes por carretera.</p>
 
         <div class="rutas-list">
