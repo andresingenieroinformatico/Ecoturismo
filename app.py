@@ -1,22 +1,20 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash
+from utils.login import login_required
+from utils.phone_format import format_phone
+from controller.user_controller import insert_user, is_exists
 from flask_bcrypt import Bcrypt
-from supabase import create_client, Client
-from dotenv import load_dotenv
-import os
-load_dotenv()
-
-# Configuración de Supabase
-url: str = os.getenv("SUPABASE_URL")
-key: str = os.getenv("SUPABASE_KEY")
-# Configuración de Supabase
-try:
-    supabase: Client = create_client(url, key)
-except Exception as e:
-    print(e)
+from connection import connection
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 bcrypt = Bcrypt(app)
 app.secret_key = "advpjsh"
+supabase=connection()
+
+def get_session_user_data():
+    return {
+        'primer_N': session.get('primer_N', 'Usuario'),
+        'primer_A': session.get('primer_A', '')
+    }
 
 @app.route('/')
 def base():
@@ -25,67 +23,47 @@ def base():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        primer_N = request.form.get('primer_N')
-        segundo_N = request.form.get('segundo_N', '')
-        primer_A = request.form.get('primer_A')
-        segundo_A = request.form.get('segundo_A', '')
-        celular = request.form.get('celular')
-        email = request.form.get('email')
-        cedula = request.form.get('cedula')
-        tipo_usu = request.form.get('tipo_usu')
-        password = request.form.get('password')
+        clave=request.form.get('password')
+        hashed_password = bcrypt.generate_password_hash(clave).decode('utf-8')
+        data={
+            "primer_nombre" : request.form.get('primer_N'),
+            "segundo_nombre" : request.form.get('segundo_N', ''),
+            "primer_apellido" : request.form.get('primer_A'),
+            "segundo_apellido" : request.form.get('segundo_A', ''),
+            "correo" : request.form.get('email'),
+            "contrasena" : hashed_password,
+            "cedula" : request.form.get('cedula'),
+            "telefono" : format_phone(request.form.get('celular')),
+            "tipo_usuario" : request.form.get('tipo_usu').lower()
+        }
 
-        # Validación básica
-        if not all([primer_N, primer_A, celular, email, cedula, tipo_usu, password]):
+        if not all([data['primer_nombre'], 
+                    data['primer_apellido'], 
+                    data['cedula'], 
+                    data['correo'], 
+                    data['contrasena'], 
+                    data['tipo_usuario'], 
+                    data['telefono']]
+                ):
             flash("Por favor, complete todos los campos obligatorios.", "error")
             return render_template('register.html')
-
-        # Formatear celular
-        celular = celular.strip()
-        if not celular.startswith('+57'):
-            if celular.startswith('0'):
-                celular = '+57' + celular[1:]
-            elif celular.startswith('3'):
-                celular = '+57' + celular
-            else:
-                celular = '+57' + celular  
-
-        # Verificar si el correo ya existe
-        user = supabase.table('usuarios').select('*').eq('correo', email).execute()
-        if user.data:
-            flash("El correo electrónico ya está registrado.", "error")
+        
+        exists=is_exists(data['correo'],supabase)
+        if exists['exists']:
+            flash("Usuario no disponible.", "error")
             return render_template('register.html')
 
-        # Encriptar contraseña
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-
-        # Insertar usuario
         try:
-            supabase.table('usuarios').insert({
-                "primer_nombre": primer_N,
-                "segundo_nombre": segundo_N,
-                "primer_apellido": primer_A,
-                "segundo_apellido": segundo_A,
-                "correo": email,
-                "contrasena": hashed_password,
-                "cedula": cedula,
-                "telefono": celular,
-                "tipo_usuario": str(tipo_usu).lower()
-            }).execute()
-
-            session['email'] = email
-            session['primer_N'] = primer_N
-            session['primer_A'] = primer_A
+            insert_user(data,supabase)
             flash("Registro exitoso. Bienvenido!", "success")
             return redirect(url_for('login'))
 
         except Exception as e:
-            flash(f"Error al registrarse: {str(e)}", "error")
+            flash(f"Error al registrarse", "error")
             print(e)
             return render_template('register.html')
 
     return render_template('register.html')
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -94,180 +72,50 @@ def login():
         email = request.form.get('email')
         password = request.form.get('password')
 
-        if not tipo_usu or not email or not password:
+        if not all([tipo_usu, email, password]):
             flash("Por favor, complete todos los campos.", "error")
             return render_template('login.html')
+        
+        user=is_exists(email, supabase)
 
-        try:
-            user = supabase.table('usuarios').select('*').eq('correo', email).execute()
-            if not user.data:
-                flash("Usuario no encontrado.", "error")
-                return render_template('login.html')
+        if bcrypt.check_password_hash(user['data'][0]['contrasena'], password) and user['exists']:
+            session['email'] = user['data'][0]['correo']
+            session['primer_N'] = user['data'][0]['primer_nombre']
+            session['primer_A'] = user['data'][0]['primer_apellido']
+            session['tipo_usu'] = user['data'][0]['tipo_usuario']
 
-            user = user.data[0]
+            if session['tipo_usu'] == 'admin':
+                return redirect(url_for('index_admin'))
+            return redirect(url_for('index'))
+        else:
+            flash("Usuario, contraseña o rol incorrecto.", "error")
 
-            if bcrypt.check_password_hash(user['contrasena'], password):
-                if user['tipo_usuario'] == tipo_usu.lower():
-                    session['email'] = user['correo']
-                    session['primer_N'] = user['primer_nombre']
-                    session['primer_A'] = user['primer_apellido']
-                    session['tipo_usu'] = user['tipo_usuario']
-
-                    if user['tipo_usuario'] == 'admin':
-                        return redirect(url_for('index_admin'))
-                    else:
-                        print('entro')
-                        return redirect(url_for('index'))
-                else:
-                    flash("El rol seleccionado no coincide con el registrado.", "error")
-            else:
-                flash("Contraseña incorrecta.", "error")
-
-        except Exception as e:
-            flash(f"Error en la base de datos: {str(e)}", "error")
-            print(e)
     return render_template('login.html')
 
 @app.route('/index')
+@login_required
 def index():
-    if 'email' not in session:
-        flash("Por favor, inicia sesión para continuar.", "error")
-        return redirect(url_for('login'))
-    usuario = {
-        'primer_N': session.get('primer_N', 'Usuario'),
-        'primer_A': session.get('primer_A', '')
-    }
+    usuario = get_session_user_data()
     return render_template('index.html', usuario=usuario)
 
 @app.route('/lugares')
-def rlugares():
-    if 'email' not in session:
-        flash("Por favor, inicia sesión para continuar.", "error")
-        return redirect(url_for('login'))
-    usuario = {
-        'primer_N': session.get('primer_N', 'Usuario'),
-        'primer_A': session.get('primer_A', '')
-    }
-    return render_template('lugares.html', usuario=usuario)
-
-@app.route('/mi_perfil')
-def mi_perfil():
-    if 'email' not in session:
-        flash("Por favor, inicia sesión para continuar.", "error")
-        return redirect(url_for('login'))
-    email = session['email']
-    try:
-        resp = supabase.table('usuarios') \
-            .select('primer_nombre,segundo_nombre,primer_apellido,segundo_apellido,telefono,correo,cedula,tipo_usuario') \
-            .eq('correo', email).execute()
-        if not resp.data:
-            flash("Usuario no encontrado.", "error")
-            return redirect(url_for('login'))
-        u = resp.data[0]
-        # Map DB fields to the keys your templates expect
-        user_data = {
-            'primer_N': u.get('primer_nombre'),
-            'segundo_N': u.get('segundo_nombre'),
-            'primer_A': u.get('primer_apellido'),
-            'segundo_A': u.get('segundo_apellido'),
-            'celular': u.get('telefono'),
-            'email': u.get('correo'),
-            'cedula': u.get('cedula'),
-            'tipo_usu': u.get('tipo_usuario')
-        }
-    except Exception as e:
-        flash(f"Error en la base de datos: {str(e)}", "error")
-        return redirect(url_for('login'))
-    return render_template('mi_perfil.html', usuario=user_data)
-
-
-@app.route('/actualizar_perfil', methods=['GET', 'POST'])
-def actualizar_perfil():
-    if 'email' not in session:
-        flash("Por favor, inicia sesión para continuar.", "error")
-        return redirect(url_for('login'))
-    email_sesion = session['email']
-
-    if request.method == 'POST':
-        primer_N = request.form.get('primer_N')
-        segundo_N = request.form.get('segundo_N', '')
-        primer_A = request.form.get('primer_A')
-        segundo_A = request.form.get('segundo_A', '')
-        celular = request.form.get('celular')
-
-        if not all([primer_N, primer_A, celular]):
-            flash("Los campos obligatorios no pueden estar vacíos.", "error")
-            return redirect(url_for('actualizar_perfil'))
-
-        celular = celular.strip()
-        if not celular.startswith('+57'):
-            if celular.startswith('0'):
-                celular = '+57' + celular[1:]
-            elif celular.startswith('3'):
-                celular = '+57' + celular
-            else:
-                celular = '+57' + celular
-
-        try:
-            resp = supabase.table('usuarios').update({
-                "primer_nombre": primer_N,
-                "segundo_nombre": segundo_N,
-                "primer_apellido": primer_A,
-                "segundo_apellido": segundo_A,
-                "telefono": celular
-            }).eq('correo', email_sesion).execute()
-
-            # Optionally check resp for errors depending on your supabase client behavior
-            session['primer_N'] = primer_N
-            session['primer_A'] = primer_A
-            flash("Perfil actualizado exitosamente.", "success")
-            return redirect(url_for('mi_perfil'))
-        except Exception as e:
-            flash(f"Error en la base de datos: {str(e)}", "error")
-            return redirect(url_for('actualizar_perfil'))
-
-    # GET: obtener datos actuales para mostrar en el formulario
-    try:
-        resp = supabase.table('usuarios') \
-            .select('primer_nombre,segundo_nombre,primer_apellido,segundo_apellido,telefono,correo,cedula,tipo_usuario') \
-            .eq('correo', email_sesion).execute()
-        if not resp.data:
-            flash("Usuario no encontrado.", "error")
-            return redirect(url_for('login'))
-        u = resp.data[0]
-        user_data = {
-            'primer_N': u.get('primer_nombre'),
-            'segundo_N': u.get('segundo_nombre'),
-            'primer_A': u.get('primer_apellido'),
-            'segundo_A': u.get('segundo_apellido'),
-            'celular': u.get('telefono'),
-            'email': u.get('correo'),
-            'cedula': u.get('cedula'),
-            'tipo_usu': u.get('tipo_usuario')
-        }
-    except Exception as e:
-        flash(f"Error en la base de datos: {str(e)}", "error")
-        return redirect(url_for('login'))
-
-    return render_template('actualizar_perfil.html', usuario=user_data)
+@login_required
+def lugares():
+    user = get_session_user_data()
+    return render_template('lugares.html', user=user)
 
 @app.route('/about')
 def about():
     return render_template('about.html')
 
-@app.route('/lugares')
-def lugares():
-    return render_template('lugares.html')
-
 @app.route('/como_reservar')
 def como_reservar():
     return render_template('como_reservar.html')
 
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('login'))
-
+@app.route('/rutas_a_elegir')
+@login_required
+def rutas_a_elegir():
+    return redirect(url_for('lugares'))
 
 if __name__ == '__main__':
     app.run(debug=True)
