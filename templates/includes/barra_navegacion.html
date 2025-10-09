@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/barra_navegacion.css') }}">
 </head>
@@ -15,25 +16,26 @@
             <li><a href="{{ url_for('register') }}" class="nav-link">Registrarse</a></li>
         </ul>
     </nav>
-    
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-        const links = document.querySelectorAll('.navbar-menu a');
-        const links1 = document.querySelectorAll('.navbar-menu-1 a');
-        const currentPath = window.location.pathname;
-        links.forEach(link => {
-        const linkPath = link.getAttribute('href');
-        if (linkPath === currentPath) {
-            link.classList.add('active');
-        }
-        });
-        links1.forEach(link1 => {
-        const linkPath = link1.getAttribute('href');
-        if (linkPath === currentPath) {
-            link1.classList.add('active');
-        }
-        });
+            const links = document.querySelectorAll('.navbar-menu a');
+            const links1 = document.querySelectorAll('.navbar-menu-1 a');
+            const currentPath = window.location.pathname;
+            links.forEach(link => {
+                const linkPath = link.getAttribute('href');
+                if (linkPath === currentPath) {
+                    link.classList.add('active');
+                }
+            });
+            links1.forEach(link1 => {
+                const linkPath = link1.getAttribute('href');
+                if (linkPath === currentPath) {
+                    link1.classList.add('active');
+                }
+            });
         });
     </script>
 </header>
+
 </html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,37 +11,42 @@
     <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
     {% block extra_js %}{% endblock %}
 </head>
+
 <body>
     {% block header %}
-        <header>
-            {% include 'includes/barra_navegacion.html'  ignore missing %}
-        </header>
+    <header>
+        {% include 'includes/barra_navegacion.html' ignore missing %}
+    </header>
     {% endblock %}
 
-    <main>  
+    <main>
         {% block content %}
-            <section class="rutas-container">
-                <h1>¡Bienvenidos a Ecoturismo!</h1>
-                <p align="center">una opción de turismo diferente.</p>
-        
-                <div class="ruta-item">
-                    <h2>Explora Lugares increibles</h2>
-                    <p>Te conectamos con la naturaleza y la aventura.</p>
-                    <a href="/rutas_a_elegir"><img src="{{ url_for('static', filename='image/image.png') }}" alt="Vehículos disponibles" class="ruta-img"></a>
-                </div>
-        
-                <div class="ruta-item">
-                    <h2>Elige Tu lugar favorito</h2>
-                    <p>Selecciona entre una variedad de destinos impresionantes.</p>
-                    <a href="/vehiculos_usables"><img src="{{ url_for('static', filename='image/lugares.jpg') }}" alt="Vehículos disponibles" class="ruta-img"></a>
-                </div>
-        
-                <div class="ruta-item">
-                    <h2>Reserva Ahora</h2>
-                    <p>Inicia sesión y reserva tu destino en pocos pasos. Paga como prefieras.</p>
-                    <a href="/reservas_a_realizar"><img src="{{ url_for('static', filename='image/reserva-accesible.jpg') }}" alt="Reserva en línea" class="ruta-img"></a>
-                </div>
-            </section>
+        <section class="rutas-container">
+            <h1>¡Bienvenidos a Ecoturismo!</h1>
+            <p align="center">una opción de turismo diferente.</p>
+
+            <div class="ruta-item">
+                <h2>Explora Lugares increibles</h2>
+                <p>Te conectamos con la naturaleza y la aventura.</p>
+                <a href="/rutas_a_elegir"><img src="{{ url_for('static', filename='image/image.png') }}"
+                        alt="Vehículos disponibles" class="ruta-img"></a>
+            </div>
+
+            <div class="ruta-item">
+                <h2>Elige Tu lugar favorito</h2>
+                <p>Selecciona entre una variedad de destinos impresionantes.</p>
+                <a href="/vehiculos_usables"><img src="{{ url_for('static', filename='image/lugares.jpg') }}"
+                        alt="Vehículos disponibles" class="ruta-img"></a>
+            </div>
+
+            <div class="ruta-item">
+                <h2>Reserva Ahora</h2>
+                <p>Inicia sesión y reserva tu destino en pocos pasos. Paga como prefieras.</p>
+                <a href="/reservas_a_realizar"><img
+                        src="{{ url_for('static', filename='image/reserva-accesible.jpg') }}" alt="Reserva en línea"
+                        class="ruta-img"></a>
+            </div>
+        </section>
         {% endblock %}
 
     </main>
@@ -49,4 +55,5 @@
         {% include 'includes/footer.html' ignore missing %}
     </footer>
 </body>
+
 </html>

@@ -117,20 +117,5 @@ def como_reservar():
 def rutas_a_elegir():
     return redirect(url_for('lugares'))
 
-@app.route('/yondo')
-@login_required
-def yondo():
-    return redirect(url_for('lugares'))
-
-@app.route('/bucaramanga')
-@login_required
-def bucaramanga():
-    return redirect(url_for('lugares'))
-
-@app.route('/puerto_wilches')
-@login_required
-def puerto_wilches():
-    return redirect(url_for('lugares'))
-
 if __name__ == '__main__':
     app.run(debug=True)
