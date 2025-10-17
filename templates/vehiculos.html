@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Vehículos de Transporte - Ecoturismo{% endblock %}
+
+{% block header %}
+<header>
+    {% include 'includes/barra_navegacion.html' %}
+</header>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/vehiculos.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="vehiculos-container">
+    <h1>Vehículos de Transporte para Ecoturismo</h1>
+    <p>Descubre nuestros vehículos especialmente seleccionados para ofrecerte comodidad, seguridad y conexión con la naturaleza durante tus rutas ecoturísticas.</p>
+
+    <div class="vehiculos-list">
+
+        <div class="vehiculo-card">
+            <img src="{{ url_for('static', filename='image/van.png') }}" alt="Van turística">
+            <h2>Van Turística</h2>
+            <ul>
+                <li>Capacidad: 10 pasajeros</li>
+                <li>Aire acondicionado</li>
+                <li>Sonido ambiental y micrófono</li>
+                <li>Ideal para recorridos grupales en zonas rurales y naturales</li>
+            </ul>
+        </div>
+
+        <div class="vehiculo-card">
+            <img src="{{ url_for('static', filename='image/bus.png') }}" alt="Bus turístico">
+            <h2>Bus Turístico</h2>
+            <ul>
+                <li>Capacidad: 40 pasajeros</li>
+                <li>Asientos reclinables y baño a bordo</li>
+                <li>Sistema de sonido y guía turística</li>
+                <li>Recomendado para rutas intermunicipales</li>
+            </ul>
+        </div>
+
+        <div class="vehiculo-card">
+            <img src="{{ url_for('static', filename='image/camioneta.png') }}" alt="Camioneta 4x4">
+            <h2>Camioneta 4x4</h2>
+            <ul>
+                <li>Capacidad: 6 pasajeros</li>
+                <li>Tracción doble (ideal para caminos rurales)</li>
+                <li>Equipaje para equipos de campo o camping</li>
+                <li>Perfecta para zonas de difícil acceso</li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

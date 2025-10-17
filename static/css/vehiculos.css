@@ -1,0 +1,81 @@
+.vehiculos-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+    text-align: center;
+}
+
+.vehiculos-container h1 {
+    font-size: 2.2rem;
+    color: #2d5a27;
+    margin-bottom: 10px;
+}
+
+.vehiculos-container p {
+    font-size: 1.1rem;
+    color: #444;
+    margin-bottom: 40px;
+}
+
+.vehiculos-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+.vehiculo-card {
+    background-color: #fdfdfb;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.vehiculo-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.vehiculo-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+.vehiculo-card h2 {
+    font-size: 1.4rem;
+    margin: 15px 0 10px;
+    color: #245b2a;
+}
+
+.vehiculo-card ul {
+    list-style: none;
+    padding: 0 20px 20px;
+    text-align: left;
+}
+
+.vehiculo-card ul li {
+    font-size: 0.95rem;
+    color: #555;
+    margin: 6px 0;
+    position: relative;
+    padding-left: 20px;
+}
+
+.vehiculo-card ul li::before {
+    content: "🌿";
+    position: absolute;
+    left: 0;
+    color: #2d8a45;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 600px) {
+    .vehiculos-container h1 {
+        font-size: 1.8rem;
+    }
+
+    .vehiculo-card img {
+        height: 150px;
+    }
+}

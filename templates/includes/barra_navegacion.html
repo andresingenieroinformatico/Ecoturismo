@@ -4,51 +4,73 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/barra_navegacion.css') }}">
-    <title>Barra de Navegación</title>
+    <script src="https://kit.fontawesome.com/a2b2c1e6c9.js" crossorigin="anonymous"></script>
 </head>
 <body>
 <header>
     <nav class="navbar">
-        <div class="menu-toggle" id="menu-toggle">
-            <span class="bar"></span>
-            <span class="bar"></span>
-            <span class="bar"></span>
-        </div>
+        <button class="navbar-toggle" id="navbarToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
 
-        <div class="navbar-links" id="navbar-links">
-            <ul class="navbar-menu">
-                <li><a href="/" class="nav-link">Inicio</a></li>
-                <li><a href="{{ url_for('como_reservar') }}" class="nav-link">Cómo Reservar</a></li>
-                <li><a href="{{ url_for('about') }}" class="nav-link">Acerca de</a></li>
-            </ul>
-            <ul class="navbar-menu navbar-menu-1">
+        <ul class="navbar-menu" id="navbarMenu">
+            <li><a href="/" class="nav-link">Inicio</a></li>
+            <li><a href="{{ url_for('como_reservar') }}" class="nav-link">Cómo Reservar</a></li>
+            <li><a href="{{ url_for('lugares') }}" class="nav-link">Lugares</a></li>
+            <li><a href="{{ url_for('vehiculos') }}" class="nav-link">Vehículos</a></li>
+            <li><a href="{{ url_for('about') }}" class="nav-link">Acerca de</a></li>
+
+            {% if user.correo %}
+                <li><a href="/reservar" class="nav-link">Hacer Reserva</a></li>
+                <li><a href="/mis_reservas" class="nav-link">Mis Reservas</a></li>
+
+                <li class="dropdown">
+                    <div class="dropbtn">
+                        <div class="profile-initial">
+                            {{ user.primer_nombre|upper }}
+                        </div>
+                    </div>
+                    <div class="dropdown-content">
+                        <a href="/perfil"><i class="fas fa-user"></i> Mi Perfil</a>
+                        <a href="/logout"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+                    </div>
+                </li>
+            {% else %}
                 <li><a href="{{ url_for('login') }}" class="nav-link">Iniciar Sesión</a></li>
                 <li><a href="{{ url_for('register') }}" class="nav-link register-btn">Registrarse</a></li>
-            </ul>
-        </div>
+            {% endif %}
+        </ul>
     </nav>
+    <div class="menu-overlay" id="menuOverlay"></div>
 </header>
 
 <script>
-    // Activar link actual
-    document.addEventListener("DOMContentLoaded", function () {
-        const links = document.querySelectorAll('.nav-link');
-        const currentPath = window.location.pathname;
-        links.forEach(link => {
-            if (link.getAttribute('href') === currentPath) {
-                link.classList.add('active');
-            }
+document.addEventListener("DOMContentLoaded", function () {
+    const navbarToggle = document.getElementById('navbarToggle');
+    const navbarMenu = document.getElementById('navbarMenu');
+    const links = document.querySelectorAll('.navbar-menu a');
+    const currentPath = window.location.pathname;
+
+    function toggleMenu() {
+        navbarMenu.classList.toggle('active');
+        navbarToggle.classList.toggle('active');
+    }
+
+    navbarToggle.addEventListener('click', toggleMenu);
+
+    links.forEach(link => {
+        link.addEventListener('click', function() {
+            if (window.innerWidth <= 920) toggleMenu();
         });
     });
 
-    // Mostrar/ocultar menú
-    const menuToggle = document.getElementById('menu-toggle');
-    const navbarLinks = document.getElementById('navbar-links');
-
-    menuToggle.addEventListener('click', () => {
-        menuToggle.classList.toggle('open');
-        navbarLinks.classList.toggle('active');
+    links.forEach(link => {
+        const linkPath = link.getAttribute('href');
+        if (linkPath === currentPath) link.classList.add('active');
     });
+});
 </script>
 </body>
 </html>

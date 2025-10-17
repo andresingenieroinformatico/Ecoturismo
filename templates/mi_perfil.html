@@ -4,7 +4,7 @@
 
 {% block header %}
 <header>
-    {% include 'includes/barra_inicio_sesion.html' %}
+    {% include 'includes/barra_navegacion.html' %}
 </header>
 {% endblock %}
 
@@ -29,45 +29,40 @@
 
     <div class="profile-item">
         <i class="fas fa-user icon"></i>
-        <span>Primer Nombre:</span> {{ usuario.primer_N }}
+        <span>Primer Nombre:</span> {{ user.primer_nombre }}
     </div>
 
     <div class="profile-item">
         <i class="fas fa-user icon"></i>
-        <span>Segundo Nombre:</span> {{ usuario.segundo_N }}
+        <span>Segundo Nombre:</span> {{ user.segundo_nombre }}
     </div>
 
     <div class="profile-item">
         <i class="fas fa-user icon"></i>
-        <span>Primer Apellido:</span> {{ usuario.primer_A }}
+        <span>Primer Apellido:</span> {{ user.primer_apellido }}
     </div>
 
     <div class="profile-item">
         <i class="fas fa-user icon"></i>
-        <span>Segundo Apellido:</span> {{ usuario.segundo_A }}
+        <span>Segundo Apellido:</span> {{ user.segundo_apellido }}
     </div>
 
     <div class="profile-item">
         <i class="fas fa-phone icon"></i>
-        <span>Celular:</span> {{ usuario.celular }}
+        <span>Celular:</span> {{ user.telefono }}
     </div>
 
     <div class="profile-item">
         <i class="fas fa-envelope icon"></i>
-        <span>Correo:</span> {{ usuario.email }}
+        <span>Correo:</span> {{ user.correo }}
     </div>
 
     <div class="profile-item">
         <i class="fas fa-id-card icon"></i>
-        <span>Cédula:</span> {{ usuario.cedula }}
+        <span>Cédula:</span> {{ user.cedula }}
     </div>
 
-    <div class="profile-item">
-        <i class="fas fa-users icon"></i>
-        <span>Tipo de Usuario:</span> {{ usuario.tipo_usu }}
-    </div>
-
-    <a href="{{ url_for('actualizar_perfil') }}" class="btn-edit">Editar</a>
+    <a href="{{ url_for('actualizar') }}" class="btn-edit">Editar</a>
     <a href="{{ url_for('index') }}" class="btn-back">Volver a Inicio</a>
 </div>
 {% endblock %}

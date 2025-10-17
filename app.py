@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash
 from utils.login import login_required
 from utils.phone_format import format_phone
-from controller.user_controller import insert_user, is_exists
+from controller.user_controller import insert_user, is_exists, update_profile
 from flask_bcrypt import Bcrypt
 from connection import connection
 
@@ -12,9 +12,19 @@ supabase=connection()
 
 def get_session_user_data():
     return {
-        'primer_N': session.get('primer_N', 'Usuario'),
-        'primer_A': session.get('primer_A', '')
+        'primer_nombre': session.get('primer_nombre'),
+        'segundo_nombre': session.get('segundo_nombre'),
+        'primer_apellido': session.get('primer_apellido'),
+        'segundo_apellido': session.get('segundo_apellido'),
+        'cedula': session.get('cedula'),
+        'correo': session.get('correo'),
+        'telefono': session.get('telefono')
     }
+
+@app.context_processor
+def inject_user():
+    user = get_session_user_data()
+    return dict(user=user)
 
 @app.route('/')
 def base():
@@ -77,14 +87,19 @@ def login():
             return render_template('login.html')
         
         user=is_exists(email, supabase)
-        print(user)
         if bcrypt.check_password_hash(user['data'][0]['contrasena'], password) and user['exists']:
-            session['email'] = user['data'][0]['correo']
-            session['primer_N'] = user['data'][0]['primer_nombre']
-            session['primer_A'] = user['data'][0]['primer_apellido']
-            session['tipo_usu'] = user['data'][0]['tipo_usuario']
+            
+            session['id'] = user['data'][0]['id']
+            session['primer_nombre'] = user['data'][0]['primer_nombre']
+            session['segundo_nombre'] = user['data'][0]['segundo_nombre']
+            session['primer_apellido'] = user['data'][0]['primer_apellido']
+            session['segundo_apellido'] = user['data'][0]['segundo_apellido']
+            session['cedula'] = user['data'][0]['cedula']
+            session['correo'] = user['data'][0]['correo']
+            session['telefono'] = user['data'][0]['telefono']
+            session['tipo_usuario'] = user['data'][0]['tipo_usuario']
 
-            if session['tipo_usu'] == 'admin':
+            if user['data'][0]['tipo_usuario'] == 'admin':
                 return redirect(url_for('index_admin'))
             return redirect(url_for('index'))
         else:
@@ -92,13 +107,42 @@ def login():
 
     return render_template('login.html')
 
+@app.route('/actualizar', methods=['GET', 'POST'])
+def actualizar():
+    if request.method == 'POST':
+        id=session.get('id')
+        data={
+            "primer_nombre" : request.form.get('primer_N'),
+            "segundo_nombre" : request.form.get('segundo_N', ''),
+            "primer_apellido" : request.form.get('primer_A'),
+            "segundo_apellido" : request.form.get('segundo_A', ''),
+            "correo" : request.form.get('email'),
+            "cedula" : request.form.get('cedula'),
+            "telefono" : format_phone(request.form.get('celular'))
+        }
+
+        success=update_profile(supabase, data, id)
+
+        if success:
+            flash("Usuario guardado correctamente.", "success")
+            return redirect(url_for('index'))
+        else:
+            flash("Error al actualizar.", "error")
+
+    return render_template('actualizar_perfil.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash("Sesión cerrada correctamente.", "success")
+    return redirect(url_for('base'))
+
 @app.route('/index')
 @login_required
 def index():
     return render_template('index.html')
 
 @app.route('/lugares')
-@login_required
 def lugares():
     return render_template('lugares.html')
 
@@ -106,14 +150,22 @@ def lugares():
 def about():
     return render_template('about.html')
 
+@app.route('/vehiculos')
+def vehiculos():
+    return render_template('vehiculos.html')
+
 @app.route('/como_reservar')
 def como_reservar():
     return render_template('como_reservar.html')
 
 @app.route('/rutas_a_elegir')
-@login_required
 def rutas_a_elegir():
     return redirect(url_for('lugares'))
+
+@app.route('/perfil')
+@login_required
+def perfil():
+    return render_template('mi_perfil.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
