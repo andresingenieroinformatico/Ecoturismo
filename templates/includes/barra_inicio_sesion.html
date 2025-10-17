@@ -10,16 +10,22 @@
 <body>
     <header>
         <nav class="navbar">
-            <div class="navbar-brand">
-                <h1>Bienvenido, {% if user %} {{ user.primer_N }} {% endif %}</h1>
-            </div>
-            <ul class="navbar-menu">
+            <div class="navbar-brand">Ecoturismo</div>
+            <button class="navbar-toggle" id="navbarToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="navbar-menu" id="navbarMenu">
                 <li><a href="/index" class="nav-link">Inicio</a></li>
                 <li><a href="/lugares" class="nav-link">Lugares</a></li>
                 <li><a href="/vehiculos_usables" class="nav-link">Vehículos</a></li>
-                <li><a href="/reservas_a_realizar" class="nav-link">Realizar Reserva</a></li>
-                <li><a href="/mis_reservas" class="nav-link">Mis Reservas Realizadas</a></li>
+                <li><a href="/reservas_a_realizar" class="nav-link">Hacer Reserva</a></li>
+                <li><a href="/mis_reservas" class="nav-link">Mis Reservas</a></li>
                 <li class="dropdown">
+                    <div class="dropbtn">
+                        <div class="profile-initial">U</div>
+                    </div>
                     <div class="dropdown-content">
                         <a href="/mi_perfil"><i class="fas fa-user"></i> Mi Perfil</a>
                         <a href="/logout"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
@@ -29,11 +35,30 @@
         </nav>
     </header>
 
-
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            const navbarToggle = document.getElementById('navbarToggle');
+            const navbarMenu = document.getElementById('navbarMenu');
             const links = document.querySelectorAll('.navbar-menu a');
             const currentPath = window.location.pathname;
+
+            // Alternar menú hamburguesa
+            navbarToggle.addEventListener('click', function() {
+                navbarMenu.classList.toggle('active');
+                navbarToggle.classList.toggle('active');
+            });
+
+            // Cerrar menú al hacer clic en un enlace (en móviles)
+            links.forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        navbarMenu.classList.remove('active');
+                        navbarToggle.classList.remove('active');
+                    }
+                });
+            });
+
+            // Marcar enlace activo
             links.forEach(link => {
                 const linkPath = link.getAttribute('href');
                 if (linkPath === currentPath) {

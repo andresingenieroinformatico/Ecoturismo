@@ -77,7 +77,7 @@ def login():
             return render_template('login.html')
         
         user=is_exists(email, supabase)
-
+        print(user)
         if bcrypt.check_password_hash(user['data'][0]['contrasena'], password) and user['exists']:
             session['email'] = user['data'][0]['correo']
             session['primer_N'] = user['data'][0]['primer_nombre']
@@ -95,14 +95,12 @@ def login():
 @app.route('/index')
 @login_required
 def index():
-    usuario = get_session_user_data()
-    return render_template('index.html', usuario=usuario)
+    return render_template('index.html')
 
 @app.route('/lugares')
 @login_required
 def lugares():
-    user = get_session_user_data()
-    return render_template('lugares.html', user=user)
+    return render_template('lugares.html')
 
 @app.route('/about')
 def about():

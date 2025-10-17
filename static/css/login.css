@@ -82,6 +82,11 @@ body::before {
 .login-container {
     flex-direction: column;
     max-width: 450px;
+    border-radius: 0 10px 10px 0;
+}
+    
+.image-container{
+    border-radius: 10px 0 0 10px;
 }
 
 
@@ -191,4 +196,103 @@ input[type="text"]::placeholder {
     margin-top: 15px;
     font-size: 14px;
     text-align: center;
+}
+
+@media (max-width: 1024px) {
+    .login-page {
+        flex-direction: column;
+        height: auto;
+        max-width: 95%;
+    }
+
+    .image-container, 
+    .login-container {
+        width: 100%;
+        max-width: 600px;
+        box-shadow: none;
+        padding: 10px;
+    }
+
+    .login-container {
+        border-radius: 0 0 10px 10px;
+    }
+    .image-container{
+        border-radius: 10px 10px 0 0;
+    }
+
+    .image-container img {
+        width: 100%;
+        height: auto;
+        border-radius: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    body::before {
+        filter: blur(3px);
+    }
+
+    .login-page {
+        margin-top: 20px;
+        padding: 10px;
+    }
+
+    .login-container {
+        width: 100%;
+        max-width: 600px;
+        padding: 15px;
+        background-color: rgba(255, 255, 255, 0.95);
+        border-radius: 0 0 10px 10px;
+    }
+
+    .image-container{
+        border-radius: 10px 10px 0 0;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+        text-align: center;
+    }
+
+    .login-form {
+        gap: 15px;
+        padding: 10px;
+    }
+
+    .form-group input {
+        font-size: 15px;
+        padding: 10px 35px;
+    }
+
+    .btn {
+        font-size: 15px;
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-page {
+        height: auto;
+        flex-direction: column;
+        justify-content: flex-start;
+        border-radius: 10px;
+    }
+
+    .image-container {
+        display: none; /* Oculta la imagen en pantallas muy pequeñas */
+    }
+
+    .login-container {
+        width: 90%;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    h2 {
+        font-size: 1.3rem;
+    }
+
+    .help-link, .register-link {
+        font-size: 13px;
+    }
 }
