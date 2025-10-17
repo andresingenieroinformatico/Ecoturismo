@@ -23,7 +23,7 @@
             <li><a href="{{ url_for('about') }}" class="nav-link">Acerca de</a></li>
 
             {% if user.correo %}
-                <li><a href="/reservar" class="nav-link">Hacer Reserva</a></li>
+                <li><a href="{{ url_for('reservar') }}" class="nav-link">Hacer Reserva</a></li>
                 <li><a href="/mis_reservas" class="nav-link">Mis Reservas</a></li>
 
                 <li class="dropdown">

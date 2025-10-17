@@ -1,8 +1,10 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash
+from flask_bcrypt import Bcrypt
+import json
 from utils.login import login_required
 from utils.phone_format import format_phone
 from controller.user_controller import insert_user, is_exists, update_profile
-from flask_bcrypt import Bcrypt
+from controller.reservas_controller import get_data, make_reservation
 from connection import connection
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
@@ -130,6 +132,36 @@ def actualizar():
             flash("Error al actualizar.", "error")
 
     return render_template('actualizar_perfil.html')
+
+@app.route('/reservar', methods=['GET', 'POST'])
+@login_required
+def reservar():
+    if request.method == 'POST':
+
+        total_str = request.form.get('total', '0')
+
+        # 🔧 Elimina símbolos de moneda y cambia comas por puntos
+        total_limpio = (
+            total_str.replace('$', '')
+                     .replace(' ', '')
+                     .replace('.', '')
+                     .replace(',', '.')
+        )
+
+        total = float(total_limpio)
+        data={
+            'usuario_id':session.get('id'),
+            "actividad_id" : request.form.get('actividad_id'),
+            "fecha_reserva" : request.form.get('fecha_reserva'),
+            "cantidad_personas" : request.form.get('cantidad_personas'),
+            "estado" : 'pendiente',
+            "total" : total
+        }
+        make_reservation(supabase, data)
+
+    pagedata=get_data(supabase)
+    pagedata_json = json.dumps(pagedata, default=str)
+    return render_template('hacer_reserva.html', data=pagedata,  data_json=pagedata_json)
 
 @app.route('/logout')
 def logout():
