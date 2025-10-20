@@ -1,41 +1,76 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="es">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/barra_navegacion.css') }}">
+    <script src="https://kit.fontawesome.com/a2b2c1e6c9.js" crossorigin="anonymous"></script>
 </head>
+<body>
 <header>
     <nav class="navbar">
-        <ul class="navbar-menu">
+        <button class="navbar-toggle" id="navbarToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <ul class="navbar-menu" id="navbarMenu">
             <li><a href="/" class="nav-link">Inicio</a></li>
-            <li><a href="{{ url_for('como_reservar') }}" class="nav-link">Como Reservar</a></li>
+            <li><a href="{{ url_for('como_reservar') }}" class="nav-link">Cómo Reservar</a></li>
+            <li><a href="{{ url_for('lugares') }}" class="nav-link">Lugares</a></li>
+            <li><a href="{{ url_for('vehiculos') }}" class="nav-link">Vehículos</a></li>
             <li><a href="{{ url_for('about') }}" class="nav-link">Acerca de</a></li>
-        </ul>
-        <ul class="navbar-menu-1">
-            <li><a href="{{ url_for('login') }}" class="nav-link">Iniciar Sesión</a></li>
-            <li><a href="{{ url_for('register') }}" class="nav-link">Registrarse</a></li>
+
+            {% if user.correo %}
+                <li><a href="{{ url_for('reservar') }}" class="nav-link">Hacer Reserva</a></li>
+                <li><a href="/mis_reservas" class="nav-link">Mis Reservas</a></li>
+
+                <li class="dropdown">
+                    <div class="dropbtn">
+                        <div class="profile-initial">
+                            {{ user.primer_nombre|upper }}
+                        </div>
+                    </div>
+                    <div class="dropdown-content">
+                        <a href="/perfil"><i class="fas fa-user"></i> Mi Perfil</a>
+                        <a href="/logout"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+                    </div>
+                </li>
+            {% else %}
+                <li><a href="{{ url_for('login') }}" class="nav-link">Iniciar Sesión</a></li>
+                <li><a href="{{ url_for('register') }}" class="nav-link register-btn">Registrarse</a></li>
+            {% endif %}
         </ul>
     </nav>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const links = document.querySelectorAll('.navbar-menu a');
-            const links1 = document.querySelectorAll('.navbar-menu-1 a');
-            const currentPath = window.location.pathname;
-            links.forEach(link => {
-                const linkPath = link.getAttribute('href');
-                if (linkPath === currentPath) {
-                    link.classList.add('active');
-                }
-            });
-            links1.forEach(link1 => {
-                const linkPath = link1.getAttribute('href');
-                if (linkPath === currentPath) {
-                    link1.classList.add('active');
-                }
-            });
-        });
-    </script>
+    <div class="menu-overlay" id="menuOverlay"></div>
 </header>
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const navbarToggle = document.getElementById('navbarToggle');
+    const navbarMenu = document.getElementById('navbarMenu');
+    const links = document.querySelectorAll('.navbar-menu a');
+    const currentPath = window.location.pathname;
+
+    function toggleMenu() {
+        navbarMenu.classList.toggle('active');
+        navbarToggle.classList.toggle('active');
+    }
+
+    navbarToggle.addEventListener('click', toggleMenu);
+
+    links.forEach(link => {
+        link.addEventListener('click', function() {
+            if (window.innerWidth <= 920) toggleMenu();
+        });
+    });
+
+    links.forEach(link => {
+        const linkPath = link.getAttribute('href');
+        if (linkPath === currentPath) link.classList.add('active');
+    });
+});
+</script>
+</body>
 </html>

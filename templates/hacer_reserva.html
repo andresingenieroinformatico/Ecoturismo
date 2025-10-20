@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}Hacer reserva{% endblock %}
+
+{% block header %}
+<header>
+    {% include 'includes/barra_navegacion.html' %}
+</header>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/reservar.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="reserva-container">
+    <h2>Hacer reserva</h2>
+    <p>Selecciona un destino, una actividad y completa los datos de tu reserva.</p>
+
+    <form action="{{ url_for('reservar') }}" method="POST" class="form-reserva">
+        
+        <!-- Seleccionar destino -->
+        <div class="form-group">
+            <label for="destino_id">Destino:</label>
+            <select id="destino_id" name="destino_id" required>
+                <option value="">Selecciona un destino</option>
+                {% set destinos = data | unique(attribute='destino_id') %}
+                {% for item in destinos %}
+                    <option value="{{ item.destino_id }}">{{ item.destino_nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Seleccionar actividad -->
+        <div class="form-group">
+            <label for="actividad_id">Actividad:</label>
+            <select id="actividad_id" name="actividad_id" required>
+                <option value="">Selecciona una actividad</option>
+                {% for item in data if item.actividad_id %}
+                    <option value="{{ item.actividad_id }}" data-destino="{{ item.destino_id }}" data-precio="{{ item.precio }}">
+                        {{ item.actividad_nombre }} — ${{ "%.2f"|format(item.precio) }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Fecha -->
+        <div class="form-group">
+            <label for="fecha_reserva">Fecha de reserva:</label>
+            <input type="date" id="fecha_reserva" name="fecha_reserva" required>
+        </div>
+
+        <!-- Cantidad de personas -->
+        <div class="form-group">
+            <label for="cantidad_personas">Cantidad de personas:</label>
+            <input type="number" id="cantidad_personas" name="cantidad_personas" min="1" required>
+        </div>
+
+        <!-- Total calculado -->
+        <div class="form-group">
+            <label for="total">Total a pagar:</label>
+            <input type="text" id="total" name="total" readonly placeholder="$0.00">
+        </div>
+
+        <button type="submit" class="btn-save">Confirmar reserva</button>
+    </form>
+
+    <!-- Vista previa de destino -->
+    <div class="vista-previa" id="preview">
+        <img id="foto-preview" src="" alt="Foto del destino" style="display:none;">
+        <p id="descripcion-preview"></p>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const destinoSelect = document.getElementById("destino_id");
+    const actividadSelect = document.getElementById("actividad_id");
+    const cantidadInput = document.getElementById("cantidad_personas");
+    const totalInput = document.getElementById("total");
+    const fotoPreview = document.getElementById("foto-preview");
+    const descripcionPreview = document.getElementById("descripcion-preview");
+
+    destinoSelect.addEventListener("change", () => {
+        const destinoId = destinoSelect.value;
+        [...actividadSelect.options].forEach(opt => {
+            if (!opt.value) return; // omitir la opción vacía
+            opt.style.display = opt.getAttribute("data-destino") === destinoId ? "block" : "none";
+        });
+        actividadSelect.value = "";
+        totalInput.value = "";
+    });
+
+    actividadSelect.addEventListener("change", () => {
+        calcularTotal();
+        mostrarVistaPrevia();
+    });
+
+    cantidadInput.addEventListener("input", calcularTotal);
+
+    function calcularTotal() {
+        const actividad = actividadSelect.selectedOptions[0];
+        const precio = actividad ? parseFloat(actividad.getAttribute("data-precio") || 0) : 0;
+        const cantidad = parseInt(cantidadInput.value || 0);
+        totalInput.value = (precio * cantidad).toLocaleString("es-CO", { style: "currency", currency: "COP" });
+    }
+
+    function mostrarVistaPrevia() {
+        const actividadId = actividadSelect.value;
+        if (!actividadId) {
+            fotoPreview.style.display = "none";
+            descripcionPreview.textContent = "";
+            return;
+        }
+
+        const actividad = {{ data_json | safe }};
+        const seleccion = actividad.find(a => a.actividad_id == actividadId);
+        if (seleccion && seleccion.foto_url) {
+            fotoPreview.src = seleccion.foto_url;
+            fotoPreview.style.display = "block";
+            descripcionPreview.textContent = seleccion.destino_descripcion || "";
+        }
+    }
+});
+</script>
+{% endblock %}

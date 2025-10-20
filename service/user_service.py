@@ -11,3 +11,11 @@ def check_user_exists_service(email, supabase):
      except Exception as e:
           print(e)
           return None
+     
+def update_user(supabase, data, id):
+     try:
+          supabase.table('usuarios').update(data).eq("id", id).execute()
+          return True
+     except Exception as e:
+          print(e)
+          return False

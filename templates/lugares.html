@@ -4,13 +4,12 @@
 
 {% block header %}
 <header>
-    {% include 'includes/barra_inicio_sesion.html' %}
+    {% include 'includes/barra_navegacion.html' %}
 </header>
 {% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/lugares.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/barra_inicio_sesion.css') }}">
 {% endblock %}
 
 {% block content %}
