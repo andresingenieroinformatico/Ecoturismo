@@ -182,10 +182,6 @@ def lugares():
 def about():
     return render_template('about.html')
 
-@app.route('/vehiculos')
-def vehiculos():
-    return render_template('vehiculos.html')
-
 @app.route('/como_reservar')
 def como_reservar():
     return render_template('como_reservar.html')
